@@ -9,7 +9,7 @@ from typing import Any, Deque, Dict, List, Literal, Optional, Set, Tuple
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # ---------------------------------------------------------------------
 # Config & Logging
@@ -55,8 +55,9 @@ class Envelope(BaseModel):
     ts: int = Field(..., description="Unix epoch ms")
     payload: Dict[str, Any]
 
-    @validator("ts")
-    def ts_positive(cls, v):
+    @field_validator("ts")
+    @classmethod
+    def ts_positive(cls, v: int):
         if v <= 0:
             raise ValueError("ts must be a positive unix ms timestamp")
         return v
